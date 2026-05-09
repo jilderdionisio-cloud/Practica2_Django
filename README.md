@@ -52,35 +52,6 @@ URL base de la API:
 http://127.0.0.1:8000/api/
 ```
 
-## Entidades del proyecto
-
-### Cliente
-
-| Campo | Descripcion |
-| --- | --- |
-| `id` | Identificador del cliente |
-| `nombre` | Nombre del cliente |
-| `direccion` | Direccion del cliente |
-
-### Pedido
-
-| Campo | Descripcion |
-| --- | --- |
-| `id` | Identificador del pedido |
-| `cliente` | Cliente asociado al pedido |
-| `fecha` | Fecha generada automaticamente |
-| `monto_total` | Monto total del pedido |
-| `estado` | Estado del pedido |
-
-Estados disponibles:
-
-```text
-pendiente
-en_proceso
-entregado
-cancelado
-```
-
 ## Endpoints disponibles
 
 ### Clientes
@@ -106,61 +77,6 @@ cancelado
 | DELETE | `/api/pedidos/{id}/` | Eliminar pedido |
 | GET | `/api/pedidos/?search=pendiente` | Buscar pedidos por estado |
 | GET | `/api/pedidos/?search=Juan` | Buscar pedidos por nombre del cliente |
-
-## Ejemplos de uso
-
-### Crear cliente
-
-```bash
-curl -X POST http://127.0.0.1:8000/api/clientes/ \
-  -H "Content-Type: application/json" \
-  -d "{\"nombre\":\"Juan Perez\",\"direccion\":\"Av. Principal 123\"}"
-```
-
-JSON usado en Postman:
-
-```json
-{
-  "nombre": "Juan Perez",
-  "direccion": "Av. Principal 123"
-}
-```
-
-### Crear pedido
-
-Antes de crear un pedido debe existir un cliente. El campo `cliente` recibe el `id` del cliente.
-
-```bash
-curl -X POST http://127.0.0.1:8000/api/pedidos/ \
-  -H "Content-Type: application/json" \
-  -d "{\"cliente\":1,\"monto_total\":\"150.00\",\"estado\":\"pendiente\"}"
-```
-
-JSON usado en Postman:
-
-```json
-{
-  "cliente": 1,
-  "monto_total": "150.00",
-  "estado": "pendiente"
-}
-```
-
-### Respuesta personalizada de pedido
-
-La respuesta del pedido incluye datos del cliente asociado:
-
-```json
-{
-  "id": 1,
-  "cliente": 1,
-  "cliente_nombre": "Juan Perez",
-  "cliente_direccion": "Av. Principal 123",
-  "fecha": "2026-05-09",
-  "monto_total": "150.00",
-  "estado": "pendiente"
-}
-```
 
 ## Cumplimiento de la actividad
 
