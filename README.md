@@ -1,87 +1,87 @@
 # Orderflow API
 
-API REST creada con Django y Django REST Framework para gestionar clientes y pedidos.
+API REST desarrollada con Django y Django REST Framework para administrar clientes y pedidos.
 
-## Tecnologias
+El proyecto corresponde a un Gestor de Pedidos. Permite registrar clientes, crear pedidos asociados a un cliente, consultar pedidos, actualizarlos, eliminarlos y realizar busquedas por estado o por nombre del cliente.
+
+La gestion se realiza mediante endpoints de Django REST Framework. No se usa Django Admin como interfaz de gestion.
+
+## Tecnologias usadas
 
 - Python
 - Django 6.0.5
 - Django REST Framework 3.17.1
 - SQLite
 
-## Requisitos
+## Instrucciones para ejecutar el servidor
 
-- Python 3
-- pip
-- PowerShell o terminal compatible
-
-## Instalacion
-
-Clona el proyecto y entra a la carpeta:
+Entrar a la carpeta del proyecto:
 
 ```powershell
 cd C:\orderflow_api
 ```
 
-Crea y activa un entorno virtual:
+Activar el entorno virtual:
 
 ```powershell
-python -m venv venv
 .\venv\Scripts\Activate.ps1
 ```
 
-Instala las dependencias:
+Instalar dependencias:
 
 ```powershell
 pip install -r requirements.txt
 ```
 
-Aplica las migraciones:
+Ejecutar migraciones:
 
 ```powershell
+python manage.py makemigrations
 python manage.py migrate
 ```
 
-Ejecuta el servidor:
+Iniciar el servidor:
 
 ```powershell
 python manage.py runserver
 ```
 
-La API queda disponible en:
+URL base de la API:
 
 ```text
 http://127.0.0.1:8000/api/
 ```
 
-## Modelos
+## Entidades del proyecto
 
 ### Cliente
 
-| Campo | Tipo | Descripcion |
-| --- | --- | --- |
-| id | AutoField | Identificador del cliente |
-| nombre | CharField | Nombre del cliente |
-| direccion | CharField | Direccion del cliente |
+| Campo | Descripcion |
+| --- | --- |
+| `id` | Identificador del cliente |
+| `nombre` | Nombre del cliente |
+| `direccion` | Direccion del cliente |
 
 ### Pedido
 
-| Campo | Tipo | Descripcion |
-| --- | --- | --- |
-| id | AutoField | Identificador del pedido |
-| cliente | ForeignKey | Cliente asociado al pedido |
-| fecha | DateField | Fecha creada automaticamente |
-| monto_total | DecimalField | Monto total del pedido |
-| estado | CharField | Estado del pedido |
+| Campo | Descripcion |
+| --- | --- |
+| `id` | Identificador del pedido |
+| `cliente` | Cliente asociado al pedido |
+| `fecha` | Fecha generada automaticamente |
+| `monto_total` | Monto total del pedido |
+| `estado` | Estado del pedido |
 
-Estados disponibles para un pedido:
+Estados disponibles:
 
-- `pendiente`
-- `en_proceso`
-- `entregado`
-- `cancelado`
+```text
+pendiente
+en_proceso
+entregado
+cancelado
+```
 
-## Endpoints
+## Endpoints disponibles
 
 ### Clientes
 
@@ -104,21 +104,20 @@ Estados disponibles para un pedido:
 | PUT | `/api/pedidos/{id}/` | Actualizar pedido completo |
 | PATCH | `/api/pedidos/{id}/` | Actualizar pedido parcialmente |
 | DELETE | `/api/pedidos/{id}/` | Eliminar pedido |
+| GET | `/api/pedidos/?search=pendiente` | Buscar pedidos por estado |
+| GET | `/api/pedidos/?search=Juan` | Buscar pedidos por nombre del cliente |
 
-## Busqueda de pedidos
+## Ejemplos de uso
 
-Los pedidos se pueden buscar por estado o por nombre del cliente usando el parametro `search`.
+### Crear cliente
 
-Ejemplos:
-
-```text
-GET /api/pedidos/?search=pendiente
-GET /api/pedidos/?search=Juan
+```bash
+curl -X POST http://127.0.0.1:8000/api/clientes/ \
+  -H "Content-Type: application/json" \
+  -d "{\"nombre\":\"Juan Perez\",\"direccion\":\"Av. Principal 123\"}"
 ```
 
-## Ejemplos de JSON
-
-Crear cliente:
+JSON usado en Postman:
 
 ```json
 {
@@ -127,7 +126,17 @@ Crear cliente:
 }
 ```
 
-Crear pedido:
+### Crear pedido
+
+Antes de crear un pedido debe existir un cliente. El campo `cliente` recibe el `id` del cliente.
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/pedidos/ \
+  -H "Content-Type: application/json" \
+  -d "{\"cliente\":1,\"monto_total\":\"150.00\",\"estado\":\"pendiente\"}"
+```
+
+JSON usado en Postman:
 
 ```json
 {
@@ -137,7 +146,9 @@ Crear pedido:
 }
 ```
 
-Respuesta de pedido:
+### Respuesta personalizada de pedido
+
+La respuesta del pedido incluye datos del cliente asociado:
 
 ```json
 {
@@ -151,22 +162,77 @@ Respuesta de pedido:
 }
 ```
 
+## Cumplimiento de la actividad
+
+| Requisito | Implementacion |
+| --- | --- |
+| Listado general de pedidos | `GET /api/pedidos/` |
+| Creacion de pedidos | `POST /api/pedidos/` |
+| Edicion de pedidos | `PUT/PATCH /api/pedidos/{id}/` |
+| Eliminacion de pedidos | `DELETE /api/pedidos/{id}/` |
+| Busqueda de pedidos | `GET /api/pedidos/?search=` |
+| Relacion pedido-cliente | `Pedido` tiene `ForeignKey` hacia `Cliente` |
+| CRUD de clientes | Endpoints `/api/clientes/` |
+| Punto extra | `cliente_nombre` y `cliente_direccion` en pedidos |
+
+## Evidencias en Postman
+
+### CRUD de clientes
+
+Crear cliente con `POST /api/clientes/`:
+
+![Crear cliente](docs/clientepost.png)
+
+Listar clientes con `GET /api/clientes/`:
+
+![Listar clientes](docs/listarclienteget.png)
+
+Actualizar cliente con `PATCH /api/clientes/{id}/`:
+
+![Actualizar cliente](docs/pachtcliente.png)
+
+Eliminar cliente con `DELETE /api/clientes/{id}/`:
+
+![Eliminar cliente](docs/eliminar%20cliente.png)
+
+### CRUD de pedidos
+
+Crear pedido con `POST /api/pedidos/`:
+
+![Crear pedido](docs/postpedido.png)
+
+Listar pedidos con `GET /api/pedidos/`:
+
+![Listar pedidos](docs/getpedido.png)
+
+Actualizar pedido con `PATCH /api/pedidos/{id}/`:
+
+![Actualizar pedido](docs/pachpedido.png)
+
+Eliminar pedido con `DELETE /api/pedidos/{id}/`:
+
+![Eliminar pedido](docs/Eliminar%20pedido.png)
+
+### Busqueda de pedidos
+
+Buscar pedidos por estado con `GET /api/pedidos/?search=pendiente`:
+
+![Buscar por estado](docs/get%20por%20estado.png)
+
+Buscar pedidos por cliente con `GET /api/pedidos/?search=Juan`:
+
+![Buscar por cliente](docs/get%20por%20cliente.png)
+
 ## Comandos utiles
-
-Crear migraciones:
-
-```powershell
-python manage.py makemigrations
-```
-
-Aplicar migraciones:
-
-```powershell
-python manage.py migrate
-```
 
 Verificar el proyecto:
 
 ```powershell
 python manage.py check
+```
+
+Ver migraciones aplicadas:
+
+```powershell
+python manage.py showmigrations
 ```
